@@ -7,6 +7,10 @@ from twisted.python.log import err
 # For CallBack commands encoding/decoding
 import simplejson
 
+from sippy.UA import UA
+
+global_config = {}
+
 class IpportCallback(protocol.Protocol):
 	def dataReceived(self, data):
 		msg('CallBack received: %s' % data)
@@ -19,23 +23,83 @@ class IpportCallback(protocol.Protocol):
 		try:
 			# process data
 			Cmd = json.loads(data)
-			# create CallController
+			CC(self, Cmd)
 		except:
 			pass
 		pass
 
 	def processFailed(self, error):
 		# return error
-		self.transport.write(error)
+		self.transport.write("error")
 		self.transport.loseConnection()
 
 	def processDone(self, result):
 		# return Call-ID
-		self.transport.write(result)
+		self.transport.write("result")
 		self.transport.loseConnection()
+
+class CallController:
+	ua0 = None
+	ua1 = None
+	user = None
+	number0 = None
+	number1 = None
+	self.callid = "callid"
+	parent = None
+
+	def __init__(self, _parent, cmd):
+		msg('CallController::__init__')
+		self.user = cmd['id']
+		self.number0 = cmd['number']
+		self.number1 = cmd['callbacknumber']
+		self.parent = _parent
+
+		self.ua0 = UA(
+				global_config,
+				event_cb = self.recvEvent,
+				conn_cbs = (self.recvConnect,),
+				disc_cbs = (self.recvDisconnect,),
+				fail_cbs = (self.recvDisconnect,),
+				dead_cbs = (self.recvDead,),
+				nh_address = (global_config['proxy_addr'], global_config['proxy_port'])
+			)
+		self.ua0.recvEvent(CCEventTry((self.callid + "-leg0", "cGIUD", self.user, self.number0, "", self.auth, "Callback")))
+
+	def recvConnect(self, ua, rtime, origin):
+		if ua == self.ua0:
+			self.ua1 = UA(
+					global_config,
+					event_cb = self.recvEvent,
+					conn_cbs = (self.recvConnect,),
+					disc_cbs = (self.recvDisconnect,),
+					fail_cbs = (self.recvDisconnect,),
+					dead_cbs = (self.recvDead,),
+					nh_address = (global_config['proxy_addr'], global_config['proxy_port'])
+				)
+			self.ua1.recvEvent(CCEventTry((self.callid + "-leg1", "cGIUD", self.user, self.number1, "", self.auth, "Callback")))
+		else:
+			pass
+
+	def recvDisconnect(self, ua, rtime, origin, result = 0):
+		pass
+
+	def recvDead(self, ua):
+		pass
+
+	def recvEvent(self, event, ua):
+		pass
+
+def recvRequest(req):
+	pass
 
 if __name__ == '__main__':
 	syslog.startLogging('callback')
+
+	global_config['proxy_address'] = "213.248.23.169"
+	global_config['proxy_port'] = 5060
+	global_config['sip_address'] = "127.0.0.1"
+	global_config['sip_port'] = 5070
+	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
 
 	factory = protocol.ServerFactory()
 	factory.protocol = IpportCallback
