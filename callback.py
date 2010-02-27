@@ -48,9 +48,9 @@ class CallController:
 	user = None
 	number0 = None
 	number1 = None
-	self.callid = None
-	self.sdp = ""
-	self.auth = None
+	callid = None
+	sdp = ""
+	auth = None
 	parent = None
 
 	def __init__(self, _parent, cmd):
