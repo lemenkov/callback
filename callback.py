@@ -10,10 +10,7 @@ from twisted.python.log import err
 import simplejson
 
 from sippy.UA import UA
-
-# generation CallID
-import string
-from random import choice
+from sippy.SipCallId import SipCallId
 
 global_config = {}
 
@@ -61,9 +58,7 @@ class CallController:
 		self.parent = _parent
 
 		# Generate unique Call-ID
-		chars = string.letters + string.digits
-		for i in range(64):
-			self.callid += choice(chars)
+		self.callid = SipCallId()
 
 		self.ua0 = UA(
 				global_config,
