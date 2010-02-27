@@ -1,3 +1,5 @@
+from twisted.internet import task
+from twisted.internet import threads
 from twisted.internet import reactor
 from twisted.internet import protocol
 from twisted.python import syslog
@@ -17,28 +19,26 @@ global_config = {}
 
 class IpportCallback(protocol.Protocol):
 	def dataReceived(self, data):
-		msg('CallBack received: %s' % data)
+		msg("[IpportCallback:dataReceived] received: %s" % data)
 		d = threads.deferToThread(self.process, data)
 		d.addErrback(self.processFailed)
 		d.addCallback(self.processDone)
 
-	def connect(self, data):
-		Cmd = {}
-		try:
-			# process data
-			Cmd = json.loads(data)
-			CC(self, Cmd)
-		except:
-			pass
-		pass
+	def process(self, data):
+		# process data
+		msg("[IpportCallback:process]")
+		Cmd = json.loads(data)
+		CallController(self, Cmd)
 
 	def processFailed(self, error):
 		# return error
+		msg("processFailed: %s" % str(error))
 		self.transport.write("error")
 		self.transport.loseConnection()
 
 	def processDone(self, result):
 		# return Call-ID
+		msg("processDone")
 		self.transport.write("result")
 		self.transport.loseConnection()
 
