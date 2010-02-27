@@ -9,6 +9,10 @@ import simplejson
 
 from sippy.UA import UA
 
+# generation CallID
+import string
+from random import choice
+
 global_config = {}
 
 class IpportCallback(protocol.Protocol):
@@ -44,7 +48,9 @@ class CallController:
 	user = None
 	number0 = None
 	number1 = None
-	self.callid = "callid"
+	self.callid = None
+	self.sdp = ""
+	self.auth = None
 	parent = None
 
 	def __init__(self, _parent, cmd):
@@ -53,6 +59,11 @@ class CallController:
 		self.number0 = cmd['number']
 		self.number1 = cmd['callbacknumber']
 		self.parent = _parent
+
+		# Generate unique Call-ID
+		chars = string.letters + string.digits
+		for i in range(64):
+			self.callid += choice(chars)
 
 		self.ua0 = UA(
 				global_config,
@@ -63,10 +74,11 @@ class CallController:
 				dead_cbs = (self.recvDead,),
 				nh_address = (global_config['proxy_addr'], global_config['proxy_port'])
 			)
-		self.ua0.recvEvent(CCEventTry((self.callid + "-leg0", "cGIUD", self.user, self.number0, "", self.auth, "Callback")))
+		self.ua0.recvEvent(CCEventTry((self.callid + "-leg0", "cGIUD", self.user, self.number0, self.sdp, self.auth, "Callback")))
 
 	def recvConnect(self, ua, rtime, origin):
 		if ua == self.ua0:
+			# Fix SDP here
 			self.ua1 = UA(
 					global_config,
 					event_cb = self.recvEvent,
@@ -76,20 +88,24 @@ class CallController:
 					dead_cbs = (self.recvDead,),
 					nh_address = (global_config['proxy_addr'], global_config['proxy_port'])
 				)
-			self.ua1.recvEvent(CCEventTry((self.callid + "-leg1", "cGIUD", self.user, self.number1, "", self.auth, "Callback")))
+			self.ua1.recvEvent(CCEventTry((self.callid + "-leg1", "cGIUD", self.user, self.number1, self.sdp, self.auth, "Callback")))
 		else:
+			# Both parties are connected NOW - we must notify self.parent here
 			pass
 
 	def recvDisconnect(self, ua, rtime, origin, result = 0):
 		pass
 
 	def recvDead(self, ua):
+		# Failure - we must notify self.parent here and clean up stuff
 		pass
 
 	def recvEvent(self, event, ua):
+		# Don't think that they need to incerconnect at all, however we should notify parent
 		pass
 
 def recvRequest(req):
+	# Empty
 	pass
 
 if __name__ == '__main__':
