@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
 	global_config['proxy_address'] = "213.248.23.169"
 	global_config['proxy_port'] = 5060
-	global_config['sip_address'] = "127.0.0.1"
+	global_config['sip_address'] = "213.248.12.116"
 	global_config['sip_port'] = 5070
 	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
 
