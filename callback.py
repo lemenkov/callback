@@ -27,7 +27,7 @@ class IpportCallback(protocol.Protocol):
 	def process(self, data):
 		# process data
 		msg("[IpportCallback:process]")
-		Cmd = json.loads(data)
+		Cmd = simplejson.loads(data)
 		CallController(self, Cmd)
 
 	def processFailed(self, error):
