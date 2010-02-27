@@ -72,7 +72,7 @@ class CallController:
 				disc_cbs = (self.recvDisconnect,),
 				fail_cbs = (self.recvDisconnect,),
 				dead_cbs = (self.recvDead,),
-				nh_address = (global_config['proxy_addr'], global_config['proxy_port'])
+				nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 			)
 		self.ua0.recvEvent(CCEventTry((self.callid + "-leg0", "cGIUD", self.user, self.number0, self.sdp, self.auth, "Callback")))
 
@@ -86,7 +86,7 @@ class CallController:
 					disc_cbs = (self.recvDisconnect,),
 					fail_cbs = (self.recvDisconnect,),
 					dead_cbs = (self.recvDead,),
-					nh_address = (global_config['proxy_addr'], global_config['proxy_port'])
+					nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 				)
 			self.ua1.recvEvent(CCEventTry((self.callid + "-leg1", "cGIUD", self.user, self.number1, self.sdp, self.auth, "Callback")))
 		else:
