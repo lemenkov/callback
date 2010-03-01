@@ -60,19 +60,22 @@ class CallController:
 	def __init__(self, _parent, cmd):
 		msg('CallController::__init__')
 #		self.user = cmd['id']
-#		self.number0 = cmd['number']
-#		self.number1 = cmd['callbacknumber']
+		self.number0 = cmd['number']
+		self.number1 = cmd['callbacknumber']
 		self.parent = _parent
 
 		# Generate unique Call-ID
 		self.callid = SipCallId()
+
+		# Generate constant From address
 		self.user = SipFrom(body = "\"Callback\" <sip:" + cmd['id'] + "@" + global_config['proxy_address'] + ">")
 		self.user.parse()
 		self.user.genTag()
-		self.number0 = SipTo(body = "sip:" + cmd['number'] + "@" + global_config['proxy_address'])
-		self.number1 = SipTo(body = "sip:" + cmd['callbacknumber'] + "@" + global_config['proxy_address'])
+
+		# Generate SDP (should be updated after first call will be established
 		self.sdp = MsgBody("v=0\r\no=sippy 401810075 652132971 IN IP4 127.0.0.1\r\ns=-\r\nc=IN IP4 127.0.0.1\r\nt=0 0\r\nm=audio 18012 RTP/AVP 8 0 101\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=ptime:20\r\n")
 
+		# FIXME add auth
 #		self.auth = SipAuthorization()
 
 		self.ua0 = UA(
@@ -84,18 +87,19 @@ class CallController:
 				dead_cbs = (self.recvDead,),
 				nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 			)
-		self.ua0.rTarget = SipURL(url = "sip:" + cmd['number'] + "@" + global_config['proxy_address'])
-		self.ua0.rUri = self.number0
+		self.ua0.rTarget = SipURL(url = "sip:" + self.number0 + "@" + global_config['proxy_address'])
+		self.ua0.rUri = SipTo(body = "sip:" + self.number0 + "@" + global_config['proxy_address'])
 		self.ua0.lUri = self.user
 		self.ua0.routes = ()
 		req = self.ua0.genRequest("INVITE", self.sdp)
-		msg("REQ: %s" % str(req))
+		msg("REQ0: %s" % str(req))
 		tran = global_config['sip_tm'].newTransaction(req, self.ua0.recvResponse)
 
 	def recvConnect(self, ua, rtime, origin):
 		msg("recvConnect")
 		if ua == self.ua0:
-			# Fix SDP here
+			# Fix SDP here with contents of the replied SDP
+			# FIXME we should notify parent about 1st leg connected
 			self.ua1 = UA(
 					global_config,
 					event_cb = self.recvEvent,
@@ -105,10 +109,15 @@ class CallController:
 					dead_cbs = (self.recvDead,),
 					nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 				)
-			req = self.ua1.genRequest("INVITE", body = self.sdp, nonce = None, realm = None, SipXXXAuthorization = None)
-			global_config['sip_tm'].newTransaction(req, self.ua1.recvResponse)
+			self.ua1.rTarget = SipURL(url = "sip:" + self.number1 + "@" + global_config['proxy_address'])
+			self.ua1.rUri = SipTo(body = "sip:" + self.number1 + "@" + global_config['proxy_address'])
+			self.ua1.lUri = self.user
+			self.ua1.routes = ()
+			req = self.ua1.genRequest("INVITE", self.sdp)
+			msg("REQ1: %s" % str(req))
+			tran = global_config['sip_tm'].newTransaction(req, self.ua1.recvResponse)
 		else:
-			# Both parties are connected NOW - we must notify self.parent here
+			# FIXME we should notify parent about 1st and 2nd leg connected
 			pass
 
 	def recvDisconnect(self, ua, rtime, origin, result = 0):
