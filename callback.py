@@ -50,8 +50,7 @@ class CallController:
 	ua0 = None
 	ua1 = None
 	user = None
-	number0 = None
-	number1 = None
+	numbers = ()
 	callid = None
 	sdp = None
 	auth = None
@@ -59,9 +58,8 @@ class CallController:
 
 	def __init__(self, _parent, cmd):
 		msg('CallController::__init__')
-#		self.user = cmd['id']
-		self.number0 = cmd['number']
-		self.number1 = cmd['callbacknumber']
+
+		self.numbers = cmd['number'], cmd['callbacknumber']
 		self.parent = _parent
 
 		# Generate unique Call-ID
@@ -88,8 +86,8 @@ class CallController:
 				dead_cbs = (self.recvDead,),
 				nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 			)
-		self.ua0.rTarget = SipURL(url = "sip:" + self.number0 + "@" + global_config['proxy_address'])
-		self.ua0.rUri = SipTo(body = "sip:" + self.number0 + "@" + global_config['proxy_address'])
+		self.ua0.rTarget = SipURL(url = "sip:" + self.numbers[0] + "@" + global_config['proxy_address'])
+		self.ua0.rUri = SipTo(body = "sip:" + self.numbers[0] + "@" + global_config['proxy_address'])
 		self.ua0.lUri = self.user
 		self.ua0.routes = ()
 		req = self.ua0.genRequest("INVITE", self.sdp)
@@ -111,8 +109,8 @@ class CallController:
 					dead_cbs = (self.recvDead,),
 					nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 				)
-			self.ua1.rTarget = SipURL(url = "sip:" + self.number1 + "@" + global_config['proxy_address'])
-			self.ua1.rUri = SipTo(body = "sip:" + self.number1 + "@" + global_config['proxy_address'])
+			self.ua1.rTarget = SipURL(url = "sip:" + self.numbers[1] + "@" + global_config['proxy_address'])
+			self.ua1.rUri = SipTo(body = "sip:" + self.numbers[1] + "@" + global_config['proxy_address'])
 			self.ua1.lUri = self.user
 			self.ua1.routes = ()
 			req = self.ua1.genRequest("INVITE", self.sdp)
