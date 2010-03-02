@@ -73,6 +73,7 @@ class CallController:
 		self.user.genTag()
 
 		# Generate SDP (should be updated after first call will be established
+		# Fixme autogenerate SDP instead of hardcoding it
 		self.sdp = MsgBody("v=0\r\no=sippy 401810075 652132971 IN IP4 127.0.0.1\r\ns=-\r\nc=IN IP4 127.0.0.1\r\nt=0 0\r\nm=audio 18012 RTP/AVP 8 0 101\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=ptime:20\r\n")
 
 		# FIXME add auth
@@ -98,7 +99,8 @@ class CallController:
 	def recvConnect(self, ua, rtime, origin):
 		msg("recvConnect")
 		if ua == self.ua0:
-			# Fix SDP here with contents of the replied SDP
+			# FIXME populate SDP here with contents of the replied SDP
+			self.sdp = MsgBody(self.sdp.localStr() + "a=nortpproxy:yes\r\n")
 			# FIXME we should notify parent about 1st leg connected
 			self.ua1 = UA(
 					global_config,
