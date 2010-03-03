@@ -137,9 +137,9 @@ class CallController:
 		# Don't think that they need to incerconnect at all, however we should notify parent
 		pass
 
-#def recvRequest(req):
-#	msg("recvRequest globally")
-#	pass
+def recvRequest(req):
+	msg("global recvRequest triggered (shouldn't happened)")
+	pass
 
 if __name__ == '__main__':
 	syslog.startLogging('callback')
@@ -148,8 +148,8 @@ if __name__ == '__main__':
 	global_config['proxy_port'] = 5060
 	global_config['sip_address'] = "213.248.12.116"
 	global_config['sip_port'] = 5070
-#	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
-	global_config['sip_tm'] = SipTransactionManager(global_config, None)
+	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
+#	global_config['sip_tm'] = SipTransactionManager(global_config, None)
 
 	factory = protocol.ServerFactory()
 	factory.protocol = IpportCallback
