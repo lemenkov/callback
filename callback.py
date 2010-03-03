@@ -18,6 +18,7 @@ from sippy.SipTo import SipTo
 from sippy.SipTransactionManager import SipTransactionManager
 from sippy.MsgBody import MsgBody
 from sippy.SipURL import SipURL
+from sippy.SipContact import SipContact
 
 global_config = {}
 
@@ -87,8 +88,9 @@ class CallController:
 				nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 			)
 		self.ua0.rTarget = SipURL(url = "sip:" + self.numbers[0] + "@" + global_config['proxy_address'])
-		self.ua0.rUri = SipTo(body = "sip:" + self.numbers[0] + "@" + global_config['proxy_address'])
+		self.ua0.rUri = SipTo(body = "<sip:" + self.numbers[0] + "@" + global_config['proxy_address'] + ">")
 		self.ua0.lUri = self.user
+		self.ua0.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 		self.ua0.routes = ()
 		req = self.ua0.genRequest("INVITE", self.sdp)
 		msg("REQ0: %s" % str(req))
@@ -110,8 +112,9 @@ class CallController:
 					nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 				)
 			self.ua1.rTarget = SipURL(url = "sip:" + self.numbers[1] + "@" + global_config['proxy_address'])
-			self.ua1.rUri = SipTo(body = "sip:" + self.numbers[1] + "@" + global_config['proxy_address'])
+			self.ua1.rUri = SipTo(body = "<sip:" + self.numbers[1] + "@" + global_config['proxy_address'] + ">")
 			self.ua1.lUri = self.user
+			self.ua0.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 			self.ua1.routes = ()
 			req = self.ua1.genRequest("INVITE", self.sdp)
 			msg("REQ1: %s" % str(req))
