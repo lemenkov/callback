@@ -97,6 +97,7 @@ class CallController:
 		self.ua0.cId = SipCallId(self.callid + "_cb_0")
 		req = self.ua0.genRequest("INVITE", self.sdp)
 		self.ua0.changeState((UacStateTrying,))
+		global_config['sip_tm'].regConsumer(self.ua0, str(self.ua0.cId))
 		msg("REQ0: %s" % str(req))
 		tran = global_config['sip_tm'].newTransaction(req, self.ua0.recvResponse)
 		print "TRAN0 ==", tran, tran.resp_cb, self.ua0.recvResponse
@@ -125,6 +126,7 @@ class CallController:
 			self.ua1.cId = SipCallId(self.callid + "_cb_1")
 			req = self.ua1.genRequest("INVITE", self.sdp)
 			self.ua1.changeState((UacStateTrying,))
+			global_config['sip_tm'].regConsumer(self.ua1, str(self.ua1.cId))
 			msg("REQ1: %s" % str(req))
 			tran = global_config['sip_tm'].newTransaction(req, self.ua1.recvResponse)
 			print "TRAN1 ==", tran, tran.resp_cb, self.ua0.recvResponse
