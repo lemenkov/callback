@@ -100,7 +100,7 @@ class CallController:
 		msg("recvConnect")
 		if ua == self.ua0:
 			# FIXME populate SDP here with contents of the replied SDP
-			self.sdp = MsgBody(self.sdp.localStr() + "a=nortpproxy:yes\r\n")
+			self.sdp = MsgBody(str(self.sdp) + "a=nortpproxy:yes\r\n")
 			# FIXME we should notify parent about 1st leg connected
 			self.ua1 = UA(
 					global_config,
