@@ -19,6 +19,7 @@ from sippy.SipTransactionManager import SipTransactionManager
 from sippy.MsgBody import MsgBody
 from sippy.SipURL import SipURL
 from sippy.SipContact import SipContact
+from sippy.UacStateTrying import UacStateTrying
 
 global_config = {}
 
@@ -93,8 +94,10 @@ class CallController:
 		self.ua0.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 		self.ua0.routes = ()
 		req = self.ua0.genRequest("INVITE", self.sdp)
+		self.ua0.changeState((UacStateTrying,))
 		msg("REQ0: %s" % str(req))
 		tran = global_config['sip_tm'].newTransaction(req, self.ua0.recvResponse)
+		print "TRAN0 ==", tran, tran.resp_cb, self.ua0.recvResponse
 
 	def recvConnect(self, ua, rtime, origin):
 		msg("recvConnect")
@@ -117,8 +120,10 @@ class CallController:
 			self.ua1.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 			self.ua1.routes = ()
 			req = self.ua1.genRequest("INVITE", self.sdp)
+			self.ua1.changeState((UacStateTrying,))
 			msg("REQ1: %s" % str(req))
 			tran = global_config['sip_tm'].newTransaction(req, self.ua1.recvResponse)
+			print "TRAN1 ==", tran, tran.resp_cb, self.ua0.recvResponse
 		else:
 			# FIXME we should notify parent about 1st and 2nd leg connected
 			pass
