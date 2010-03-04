@@ -114,7 +114,7 @@ class CallController:
 			self.ua1.rTarget = SipURL(url = "sip:" + self.numbers[1] + "@" + global_config['proxy_address'])
 			self.ua1.rUri = SipTo(body = "<sip:" + self.numbers[1] + "@" + global_config['proxy_address'] + ">")
 			self.ua1.lUri = self.user
-			self.ua0.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
+			self.ua1.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 			self.ua1.routes = ()
 			req = self.ua1.genRequest("INVITE", self.sdp)
 			msg("REQ1: %s" % str(req))
