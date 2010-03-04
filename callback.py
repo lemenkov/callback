@@ -143,7 +143,6 @@ class CallController:
 		pass
 
 def recvRequest(req):
-	msg("global recvRequest triggered (shouldn't happened)")
 	pass
 
 if __name__ == '__main__':
