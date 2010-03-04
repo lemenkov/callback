@@ -65,7 +65,7 @@ class CallController:
 		self.parent = _parent
 
 		# Generate unique Call-ID
-		self.callid = SipCallId()
+		self.callid = str(SipCallId())
 
 		# Generate constant From address
 		self.user = SipFrom(body = "\"Callback\" <sip:" + cmd['id'] + "@" + global_config['proxy_address'] + ">")
@@ -93,6 +93,7 @@ class CallController:
 		self.ua0.lUri = self.user
 		self.ua0.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 		self.ua0.routes = ()
+		self.ua0.cId = SipCallId(self.callid + "_cb_0")
 		req = self.ua0.genRequest("INVITE", self.sdp)
 		self.ua0.changeState((UacStateTrying,))
 		msg("REQ0: %s" % str(req))
@@ -119,6 +120,7 @@ class CallController:
 			self.ua1.lUri = self.user
 			self.ua1.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 			self.ua1.routes = ()
+			self.ua1.cId = SipCallId(self.callid + "_cb_1")
 			req = self.ua1.genRequest("INVITE", self.sdp)
 			self.ua1.changeState((UacStateTrying,))
 			msg("REQ1: %s" % str(req))
