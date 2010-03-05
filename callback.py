@@ -100,8 +100,8 @@ class CallController:
 		self.ua0.changeState((UacStateTrying,))
 		global_config['sip_tm'].regConsumer(self.ua0, str(self.ua0.cId))
 		msg("REQ0: %s" % str(req))
-		tran = global_config['sip_tm'].newTransaction(req, self.ua0.recvResponse)
-		print "TRAN0 ==", tran, tran.resp_cb, self.ua0.recvResponse
+		self.ua0.tr = global_config['sip_tm'].newTransaction(req, self.ua0.recvResponse)
+		print "TRAN0 ==", self.ua0.tr, self.ua0.recvResponse
 
 	def recvConnect(self, ua, rtime, origin):
 		msg("recvConnect")
@@ -129,8 +129,8 @@ class CallController:
 			self.ua1.changeState((UacStateTrying,))
 			global_config['sip_tm'].regConsumer(self.ua1, str(self.ua1.cId))
 			msg("REQ1: %s" % str(req))
-			tran = global_config['sip_tm'].newTransaction(req, self.ua1.recvResponse)
-			print "TRAN1 ==", tran, tran.resp_cb, self.ua0.recvResponse
+			self.ua1.tr = global_config['sip_tm'].newTransaction(req, self.ua1.recvResponse)
+			print "TRAN1 ==", self.ua1.tr, self.ua0.recvResponse
 		else:
 			# FIXME we should notify parent about 1st and 2nd leg connected
 			pass
