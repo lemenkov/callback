@@ -20,6 +20,7 @@ from sippy.MsgBody import MsgBody
 from sippy.SipURL import SipURL
 from sippy.SipContact import SipContact
 from sippy.UacStateTrying import UacStateTrying
+from sippy.CCEvents import *
 
 global_config = {}
 
@@ -136,6 +137,14 @@ class CallController:
 
 	def recvDisconnect(self, ua, rtime, origin, result = 0):
 		msg("recvDisconnect")
+		if ua == self.ua0:
+			self.ua0 = None
+			if self.ua1 != None:
+				self.ua1.recvEvent(CCEventDisconnect())
+		if ua == self.ua1:
+			self.ua1 = None
+			if self.ua0 != None:
+				self.ua0.recvEvent(CCEventDisconnect())
 		pass
 
 	def recvDead(self, ua):
