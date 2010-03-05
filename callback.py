@@ -95,6 +95,7 @@ class CallController:
 		self.ua0.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 		self.ua0.routes = ()
 		self.ua0.lCSeq = 1
+		self.ua0.rCSeq = 1
 		self.ua0.cId = SipCallId(self.callid + "_cb_0")
 		req = self.ua0.genRequest("INVITE", self.sdp)
 		self.ua0.changeState((UacStateTrying,))
@@ -124,6 +125,7 @@ class CallController:
 			self.ua1.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
 			self.ua1.routes = ()
 			self.ua1.lCSeq = 1
+			self.ua1.rCSeq = 1
 			self.ua1.cId = SipCallId(self.callid + "_cb_1")
 			req = self.ua1.genRequest("INVITE", self.sdp)
 			self.ua1.changeState((UacStateTrying,))
@@ -140,10 +142,14 @@ class CallController:
 		if ua == self.ua0:
 			self.ua0 = None
 			if self.ua1 != None:
+				self.ua1.lCSeq += 1
+				self.ua1.rCSeq += 1
 				self.ua1.recvEvent(CCEventDisconnect())
 		if ua == self.ua1:
 			self.ua1 = None
 			if self.ua0 != None:
+				self.ua0.lCSeq += 1
+				self.ua0.rCSeq += 1
 				self.ua0.recvEvent(CCEventDisconnect())
 		pass
 
