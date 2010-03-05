@@ -174,7 +174,6 @@ if __name__ == '__main__':
 	global_config['sip_address'] = "213.248.12.116"
 	global_config['sip_port'] = 5070
 	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
-#	global_config['sip_tm'] = SipTransactionManager(global_config, None)
 
 	factory = protocol.ServerFactory()
 	factory.protocol = IpportCallback
