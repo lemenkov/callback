@@ -62,7 +62,7 @@ class CallController:
 	def __init__(self, _parent, cmd):
 		msg('CallController::__init__')
 
-		self.numbers = cmd['number'], cmd['callbacknumber']
+		self.numbers = cmd['callbacknumber'], cmd['number']
 		self.parent = _parent
 
 		# Generate unique Call-ID
