@@ -37,7 +37,7 @@ class IpportCallback(protocol.Protocol):
 		Cmd = simplejson.loads(data)
 		cc = CallController(Cmd)
 		Cmd['result'] = "ok"
-		Cmd['callid'] = cc.callid + "_cb_0"
+		Cmd['callid'] = cc.callid + "_cb_0_b2b_0"
 		return simplejson.dumps(Cmd)
 
 	def processFailed(self, error):
