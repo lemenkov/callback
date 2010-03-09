@@ -110,11 +110,7 @@ class CallController:
 		msg("recvConnect")
 		if ua == self.ua[0]:
 			self.sdp = MsgBody(str(self.ua[0].rSDP) + "a=nortpproxy:yes\r\n")
-			# FIXME we should notify parent about 1st leg connected
 			self.ua_gen_invite(1)
-		else:
-			# FIXME we should notify parent about 1st and 2nd leg connected
-			pass
 
 	def recvDisconnect(self, ua, rtime, origin, result = 0):
 		msg("recvDisconnect")
@@ -128,12 +124,12 @@ class CallController:
 
 	def recvDead(self, ua):
 		msg("recvDead")
-		# Failure - we must notify self.parent here and clean up stuff
+		# Failure - we must clean up stuff here
 		pass
 
 	def recvEvent(self, event, ua):
 		msg("recvEvent")
-		# Don't think that they need to incerconnect at all, however we should notify parent
+		# Don't think that they need to incerconnect at all
 		pass
 
 def recvRequest(req):
