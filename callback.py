@@ -35,7 +35,7 @@ class IpportCallback(protocol.Protocol):
 		# process data
 		msg("[IpportCallback:process]")
 		Cmd = simplejson.loads(data)
-		cc = CallController(self, Cmd)
+		cc = CallController(Cmd)
 		Cmd['result'] = "ok"
 		Cmd['callid'] = cc.callid + "_cb_0"
 		return simplejson.dumps(Cmd)
@@ -59,13 +59,11 @@ class CallController:
 	callid = None
 	sdp = None
 	auth = None
-	parent = None
 
-	def __init__(self, _parent, cmd):
+	def __init__(self, cmd):
 		msg('CallController::__init__')
 
 		self.numbers = cmd['callbacknumber'], cmd['number']
-		self.parent = _parent
 
 		# Generate unique Call-ID
 		self.callid = str(SipCallId())
