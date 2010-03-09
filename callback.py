@@ -35,7 +35,10 @@ class IpportCallback(protocol.Protocol):
 		# process data
 		msg("[IpportCallback:process]")
 		Cmd = simplejson.loads(data)
-		CallController(self, Cmd)
+		cc = CallController(self, Cmd)
+		Cmd['result'] = "ok"
+		Cmd['callid'] = cc.callid
+		return simplejson.dumps(Cmd)
 
 	def processFailed(self, error):
 		# return error
@@ -45,8 +48,8 @@ class IpportCallback(protocol.Protocol):
 
 	def processDone(self, result):
 		# return Call-ID
-		msg("processDone")
-		self.transport.write("result")
+		msg("processDone: %s" % str(result) )
+		self.transport.write(result)
 		self.transport.loseConnection()
 
 class CallController:
