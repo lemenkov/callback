@@ -122,8 +122,12 @@ class CallController:
 
 	def recvDead(self, ua):
 		msg("recvDead")
-		# Failure - we must clean up stuff here
-		pass
+		# Failure - clean up stuff here
+		ua.event_cb = None
+		ua.conn_cbs = None
+		ua.disc_cbs = None
+		ua.fail_cbs = None
+		ua.dead_cbs = None
 
 	def recvEvent(self, event, ua):
 		msg("recvEvent")
