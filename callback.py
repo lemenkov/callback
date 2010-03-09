@@ -53,10 +53,9 @@ class IpportCallback(protocol.Protocol):
 		self.transport.loseConnection()
 
 class CallController:
-	ua0 = None
-	ua1 = None
+	ua = [None, None]
 	user = None
-	numbers = ()
+	numbers = None
 	callid = None
 	sdp = None
 	auth = None
@@ -82,8 +81,10 @@ class CallController:
 
 		# FIXME add auth
 #		self.auth = SipAuthorization()
+		self.ua_gen_invite(0)
 
-		self.ua0 = UA(
+	def ua_gen_invite(self, num):
+		self.ua[num] = UA(
 				global_config,
 				event_cb = self.recvEvent,
 				conn_cbs = (self.recvConnect,),
@@ -92,68 +93,38 @@ class CallController:
 				dead_cbs = (self.recvDead,),
 				nh_address = (global_config['proxy_address'], global_config['proxy_port'])
 			)
-		self.ua0.rTarget = SipURL(url = "sip:" + self.numbers[0] + "@" + global_config['proxy_address'])
-		self.ua0.rUri = SipTo(body = "<sip:" + self.numbers[0] + "@" + global_config['proxy_address'] + ">")
-		self.ua0.lUri = self.user
-		self.ua0.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
-		self.ua0.routes = ()
-		self.ua0.lCSeq = 1
-		self.ua0.rCSeq = 1
-		self.ua0.cId = SipCallId(self.callid + "_cb_0")
-		req = self.ua0.genRequest("INVITE", self.sdp)
-		self.ua0.changeState((UacStateTrying,))
-		global_config['sip_tm'].regConsumer(self.ua0, str(self.ua0.cId))
-		msg("REQ0: %s" % str(req))
-		self.ua0.tr = global_config['sip_tm'].newTransaction(req, self.ua0.recvResponse)
-		print "TRAN0 ==", self.ua0.tr, self.ua0.recvResponse
+		self.ua[num].rTarget = SipURL(url = "sip:" + self.numbers[num] + "@" + global_config['proxy_address'])
+		self.ua[num].rUri = SipTo(body = "<sip:" + self.numbers[num] + "@" + global_config['proxy_address'] + ">")
+		self.ua[num].lUri = self.user
+		self.ua[num].lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
+		self.ua[num].routes = ()
+		self.ua[num].lCSeq = 1
+		self.ua[num].rCSeq = 1
+		self.ua[num].cId = SipCallId(self.callid + "_cb_%d" % num)
+		req = self.ua[num].genRequest("INVITE", self.sdp)
+		self.ua[num].changeState((UacStateTrying,))
+		global_config['sip_tm'].regConsumer(self.ua[num], str(self.ua[num].cId))
+		self.ua[num].tr = global_config['sip_tm'].newTransaction(req, self.ua[num].recvResponse)
 
 	def recvConnect(self, ua, rtime, origin):
 		msg("recvConnect")
-		if ua == self.ua0:
-			self.sdp = MsgBody(str(self.ua0.rSDP) + "a=nortpproxy:yes\r\n")
+		if ua == self.ua[0]:
+			self.sdp = MsgBody(str(self.ua[0].rSDP) + "a=nortpproxy:yes\r\n")
 			# FIXME we should notify parent about 1st leg connected
-			self.ua1 = UA(
-					global_config,
-					event_cb = self.recvEvent,
-					conn_cbs = (self.recvConnect,),
-					disc_cbs = (self.recvDisconnect,),
-					fail_cbs = (self.recvDisconnect,),
-					dead_cbs = (self.recvDead,),
-					nh_address = (global_config['proxy_address'], global_config['proxy_port'])
-				)
-			self.ua1.rTarget = SipURL(url = "sip:" + self.numbers[1] + "@" + global_config['proxy_address'])
-			self.ua1.rUri = SipTo(body = "<sip:" + self.numbers[1] + "@" + global_config['proxy_address'] + ">")
-			self.ua1.lUri = self.user
-			self.ua1.lContact = SipContact(body = "<sip:callback@" + global_config['proxy_address'] + ">")
-			self.ua1.routes = ()
-			self.ua1.lCSeq = 1
-			self.ua1.rCSeq = 1
-			self.ua1.cId = SipCallId(self.callid + "_cb_1")
-			req = self.ua1.genRequest("INVITE", self.sdp)
-			self.ua1.changeState((UacStateTrying,))
-			global_config['sip_tm'].regConsumer(self.ua1, str(self.ua1.cId))
-			msg("REQ1: %s" % str(req))
-			self.ua1.tr = global_config['sip_tm'].newTransaction(req, self.ua1.recvResponse)
-			print "TRAN1 ==", self.ua1.tr, self.ua0.recvResponse
+			self.ua_gen_invite(1)
 		else:
 			# FIXME we should notify parent about 1st and 2nd leg connected
 			pass
 
 	def recvDisconnect(self, ua, rtime, origin, result = 0):
 		msg("recvDisconnect")
-		if ua == self.ua0:
-			self.ua0 = None
-			if self.ua1 != None:
-				self.ua1.lCSeq += 1
-				self.ua1.rCSeq += 1
-				self.ua1.recvEvent(CCEventDisconnect())
-		if ua == self.ua1:
-			self.ua1 = None
-			if self.ua0 != None:
-				self.ua0.lCSeq += 1
-				self.ua0.rCSeq += 1
-				self.ua0.recvEvent(CCEventDisconnect())
-		pass
+		Ret = (lambda x: ((x == self.ua[0]) and (0,1)) or ((x == self.ua[1]) and (1,0)))(ua)
+		if Ret:
+			self.ua[Ret[0]] = None
+			if self.ua[Ret[1]] != None:
+				self.ua[Ret[1]].lCSeq += 1
+				self.ua[Ret[1]].rCSeq += 1
+				self.ua[Ret[1]].recvEvent(CCEventDisconnect())
 
 	def recvDead(self, ua):
 		msg("recvDead")
