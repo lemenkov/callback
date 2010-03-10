@@ -111,9 +111,9 @@ class CallController:
 			self.ua_gen_invite(1)
 
 	def recvDisconnect(self, ua, rtime, origin, result = 0):
-		msg("recvDisconnect")
 		Ret = (lambda x: ((x == self.ua[0]) and (0,1)) or ((x == self.ua[1]) and (1,0)))(ua)
 		if Ret:
+			msg("recvDisconnect from %d" % Ret[0])
 			self.ua[Ret[0]] = None
 			if self.ua[Ret[1]] != None:
 				self.ua[Ret[1]].lCSeq += 1
