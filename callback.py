@@ -79,14 +79,14 @@ class CallController:
 		# Fixme autogenerate SDP instead of hardcoding it
 		self.sdp = MsgBody("v=0\r\no=sippy 401810075 652132971 IN IP4 127.0.0.1\r\ns=-\r\nc=IN IP4 127.0.0.1\r\nt=0 0\r\nm=audio 18012 RTP/AVP 8 0 101\r\na=rtpmap:8 PCMA/8000\r\na=rtpmap:0 PCMU/8000\r\na=rtpmap:101 telephone-event/8000\r\na=fmtp:101 0-15\r\na=ptime:20\r\n")
 
-		# FIXME add auth
-#		self.auth = SipAuthorization()
 		self.ua_gen_invite(0)
 
 	def ua_gen_invite(self, num):
 		self.ua[num] = UA(
 				global_config,
 				event_cb = self.recvEvent,
+				username = global_config['sip_username'],
+				password = global_config['sip_password'],
 				conn_cbs = (self.recvConnect,),
 				disc_cbs = (self.recvDisconnect,),
 				fail_cbs = (self.recvDisconnect,),
@@ -100,8 +100,9 @@ class CallController:
 		self.ua[num].routes = ()
 		self.ua[num].lCSeq = 1
 		self.ua[num].rCSeq = 1
+		self.ua[num].lSDP = self.sdp
 		self.ua[num].cId = SipCallId(self.callid + "_cb_%d" % num)
-		req = self.ua[num].genRequest("INVITE", self.sdp)
+		req = self.ua[num].genRequest("INVITE", self.ua[num].lSDP)
 		self.ua[num].changeState((UacStateTrying,))
 		global_config['sip_tm'].regConsumer(self.ua[num], str(self.ua[num].cId))
 		self.ua[num].tr = global_config['sip_tm'].newTransaction(req, self.ua[num].recvResponse)
