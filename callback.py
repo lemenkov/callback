@@ -22,6 +22,8 @@ from sippy.SipContact import SipContact
 from sippy.UacStateTrying import UacStateTrying
 from sippy.CCEvents import *
 
+from application.configuration import *
+
 global_config = {}
 
 class IpportCallback(protocol.Protocol):
@@ -140,10 +142,15 @@ def recvRequest(req):
 if __name__ == '__main__':
 	syslog.startLogging('callback')
 
-	global_config['proxy_address'] = "213.248.23.169"
-	global_config['proxy_port'] = 5060
-	global_config['sip_address'] = "213.248.12.116"
-	global_config['sip_port'] = 5070
+	# Get config file
+	configuration = ConfigFile('/etc/callback/config.ini')
+
+	global_config['proxy_address'] = configuration.get_setting('General', 'paddr', default='127.0.0.1', type=str)
+	global_config['proxy_port'] = configuration.get_setting('General', 'pport', default=5060, type=int)
+	global_config['sip_address'] = configuration.get_setting('General', 'laddr', default='127.0.0.1', type=str)
+	global_config['sip_port'] = configuration.get_setting('General', 'lport', default=5060, type=int)
+	global_config['sip_username'] = configuration.get_setting('General', 'username', default='username', type=str)
+	global_config['sip_password'] = configuration.get_setting('General', 'password', default='password', type=str)
 	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
 
 	factory = protocol.ServerFactory()
