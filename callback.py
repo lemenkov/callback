@@ -110,7 +110,7 @@ class CallController:
 	def recvConnect(self, ua, rtime, origin):
 		msg("recvConnect")
 		if ua == self.ua[0]:
-			self.sdp = MsgBody(str(self.ua[0].rSDP) + "a=nortpproxy:yes\r\n")
+			self.sdp = MsgBody(str(self.ua[0].rSDP))
 			self.ua_gen_invite(1)
 
 	def recvDisconnect(self, ua, rtime, origin, result = 0):
