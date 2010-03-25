@@ -1,0 +1,75 @@
+#!/bin/bash
+#
+# Startup script for Callback
+#
+# chkconfig: 345 60 20
+# description: Starts/stops our Callback
+# processname: callback
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+prog=callback
+executable=/usr/local/sbin/$prog.py
+
+lockfile=/var/lock/subsys/$prog
+pidfile=/var/run/$prog/$prog.pid
+
+start() {
+	echo -n $"Starting $prog: "
+	if  status -p $pidfile $prog 2>&1 > /dev/null ; then
+		echo -n $"already started" && warning
+		echo
+		return 0
+	fi
+	daemon --user=callback python $executable -p $pidfile 2>/dev/null
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && touch $lockfile
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting down $prog: "
+	if ! status -p $pidfile $prog 2>&1 > /dev/null ; then
+		echo -n $"already stopped" && warning
+		echo
+		return 0
+	fi
+	killproc -p $pidfile -d 5
+	RETVAL=$?
+	echo
+	[ $RETVAL -eq 0 ] && rm -f $lockfile $pidfile
+	return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+        start)
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        status)
+                status -p $pidfile $prog
+                RETVAL=$?
+                ;;
+        restart)
+                stop
+                start
+                ;;
+        condrestart)
+                if [ -f $pidfile ] ; then
+                        stop
+                        start
+                fi
+                ;;
+        *)
+                echo $"Usage: $0 {start|stop|restart|condrestart|status}"
+                RETVAL=2
+esac
+
+exit $RETVAL
+
