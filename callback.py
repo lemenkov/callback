@@ -141,7 +141,20 @@ def recvRequest(req):
 	pass
 
 if __name__ == '__main__':
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], 'p:')
+	except getopt.GetoptError:
+		print 'usage: callback.py -p pidfile'
+		sys.exit(1)
+
 	syslog.startLogging('callback')
+
+	pidfile = None
+
+	for o, a in opts:
+		if o == '-p':
+			pidfile = a
+			continue
 
 	# Get config file
 	configuration = ConfigFile('/etc/callback/config.ini')
@@ -153,6 +166,11 @@ if __name__ == '__main__':
 	global_config['sip_username'] = configuration.get_setting('General', 'username', default='username', type=str)
 	global_config['sip_password'] = configuration.get_setting('General', 'password', default='password', type=str)
 	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
+
+	if pidfile != None:
+		pf = open(pidfile, "w")
+		pf.write("%d" % os.getpid())
+		pf.close()
 
 	factory = protocol.ServerFactory()
 	factory.protocol = IpportCallback
