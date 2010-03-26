@@ -24,7 +24,7 @@ from sippy.CCEvents import *
 
 from application.configuration import *
 
-import getopt
+import getopt, sys
 
 global_config = {}
 
