@@ -144,20 +144,33 @@ def recvRequest(req):
 
 if __name__ == '__main__':
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], 'p:')
+		opts, args = getopt.getopt(sys.argv[1:], 'fp:')
 	except getopt.GetoptError:
-		print 'usage: callback.py -p pidfile'
+		print 'usage: callback.py [-f] [-p pidfile]'
 		sys.exit(1)
 
 	syslog.startLogging('callback')
 
 	pidfile = None
+	foreground = False
 
 	for o, a in opts:
 		if o == '-p':
 			pidfile = a
 			continue
+		if o == '-f':
+			foreground = True
+			continue
 
+	if not foreground:
+		# Fork once
+		if os.fork() != 0:
+			os._exit(0)
+			# Create new session
+			os.setsid()
+			if os.fork() != 0:
+				os._exit(0)
+			os.chdir('/')
 	# Get config file
 	configuration = ConfigFile('/etc/callback/config.ini')
 
