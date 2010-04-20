@@ -20,7 +20,6 @@ from sippy.MsgBody import MsgBody
 from sippy.SipURL import SipURL
 from sippy.SipContact import SipContact
 from sippy.UacStateTrying import UacStateTrying
-from sippy.CCEvents import *
 
 from application.configuration import *
 
