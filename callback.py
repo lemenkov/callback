@@ -133,7 +133,6 @@ class CallController:
 		ua.fail_cbs = None
 		ua.dead_cbs = None
 		ua.tr = None
-		global_config['sip_tm'].unregConsumer(ua, str(ua.cId))
 
 	def recvEvent(self, event, ua):
 		msg("recvEvent")
