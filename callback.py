@@ -105,8 +105,8 @@ class CallController:
 		self.ua[num].cId = SipCallId(self.callid + "_cb_%d" % num)
 		req = self.ua[num].genRequest("INVITE", self.ua[num].lSDP)
 		self.ua[num].changeState((UacStateTrying,))
-		global_config['sip_tm'].regConsumer(self.ua[num], str(self.ua[num].cId))
-		self.ua[num].tr = global_config['sip_tm'].newTransaction(req, self.ua[num].recvResponse)
+		global_config['_sip_tm'].regConsumer(self.ua[num], str(self.ua[num].cId))
+		self.ua[num].tr = global_config['_sip_tm'].newTransaction(req, self.ua[num].recvResponse)
 
 	def recvConnect(self, ua, rtime, origin):
 		msg("recvConnect")
@@ -176,11 +176,11 @@ if __name__ == '__main__':
 
 	global_config['proxy_address'] = configuration.get_setting('General', 'paddr', default='127.0.0.1', type=str)
 	global_config['proxy_port'] = configuration.get_setting('General', 'pport', default=5060, type=int)
-	global_config['sip_address'] = configuration.get_setting('General', 'laddr', default='127.0.0.1', type=str)
-	global_config['sip_port'] = configuration.get_setting('General', 'lport', default=5060, type=int)
+	global_config['_sip_address'] = configuration.get_setting('General', 'laddr', default='127.0.0.1', type=str)
+	global_config['_sip_port'] = configuration.get_setting('General', 'lport', default=5060, type=int)
 	global_config['sip_username'] = configuration.get_setting('General', 'username', default='username', type=str)
 	global_config['sip_password'] = configuration.get_setting('General', 'password', default='password', type=str)
-	global_config['sip_tm'] = SipTransactionManager(global_config, recvRequest)
+	global_config['_sip_tm'] = SipTransactionManager(global_config, recvRequest)
 
 	if pidfile != None:
 		pf = open(pidfile, "w")
