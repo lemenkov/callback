@@ -1,7 +1,7 @@
 Name:		sip-callback
 Version:	0.2
 Release:	1%{?dist}
-Summary:	A simple callback aplication
+Summary:	A simple callback application
 Group:		Applications/Internet
 License:	GPLv2+
 URL:		http://github.com/lemenkov/callback
