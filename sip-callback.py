@@ -154,6 +154,7 @@ if __name__ == '__main__':
 	pidfile = None
 	config = '/etc/sip-callback/config.ini'
 	foreground = False
+	json_port = 8000
 
 	for o, a in opts:
 		if o == '-p':
@@ -186,6 +187,8 @@ if __name__ == '__main__':
 	global_config['sip_password'] = configuration.get_setting('General', 'password', default='password', type=str)
 	global_config['_sip_tm'] = SipTransactionManager(global_config, recvRequest)
 
+	json_port = configuration.get_setting('General', 'json_port', default=8000, type=int)
+
 	if pidfile != None:
 		pf = open(pidfile, "w")
 		pf.write("%d" % os.getpid())
@@ -193,6 +196,6 @@ if __name__ == '__main__':
 
 	factory = protocol.ServerFactory()
 	factory.protocol = IpportCallback
-	reactor.listenTCP(8000,factory)
+	reactor.listenTCP(json_port,factory)
 
 	reactor.run(installSignalHandlers = 0)
