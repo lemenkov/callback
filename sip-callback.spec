@@ -8,7 +8,6 @@ URL:		http://github.com/lemenkov/callback
 BuildArch:      noarch
 # wget http://github.com/lemenkov/callback/tarball/0.2
 Source0:	lemenkov-callback-%{version}-0-g6ff9f76.tar.gz
-Patch0:		callback-path.diff
 Requires:	python-sippy
 Requires:	python-simplejson
 Requires:	python-application
@@ -26,7 +25,6 @@ A simple SIP web-callback application
 
 %prep
 %setup -q -n lemenkov-callback-6ff9f76
-%patch0 -p0 -b .path
 
 
 %build
@@ -35,8 +33,8 @@ A simple SIP web-callback application
 %install
 rm -rf $RPM_BUILD_ROOT
 install -D -p -m 0644 config.ini $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.ini
-install -D -p -m 0755 callback.py  $RPM_BUILD_ROOT%{_sbindir}/%{name}
-install -D -p -m 0755 callback.init  $RPM_BUILD_ROOT%{_initrddir}/%{name}
+install -D -p -m 0755 %{name}.py  $RPM_BUILD_ROOT%{_sbindir}/%{name}
+install -D -p -m 0755 %{name}.init  $RPM_BUILD_ROOT%{_initrddir}/%{name}
 install -d $RPM_BUILD_ROOT%{_localstatedir}/run/%{name}
 
 

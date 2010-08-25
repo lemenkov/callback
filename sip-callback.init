@@ -10,8 +10,9 @@
 . /etc/rc.d/init.d/functions
 
 RETVAL=0
-prog=callback
-executable=/usr/local/sbin/$prog.py
+prog=sip-callback
+executable=/usr/sbin/$prog
+config=/etc/$prog/config.ini
 
 lockfile=/var/lock/subsys/$prog
 pidfile=/var/run/$prog/$prog.pid
@@ -23,7 +24,7 @@ start() {
 		echo
 		return 0
 	fi
-	daemon --user=callback python $executable -p $pidfile 2>/dev/null
+	daemon --user=$prog python $executable -p $pidfile -c $config 2>/dev/null
 	RETVAL=$?
 	echo
 	[ $RETVAL -eq 0 ] && touch $lockfile

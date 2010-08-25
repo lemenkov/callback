@@ -144,19 +144,23 @@ def recvRequest(req):
 
 if __name__ == '__main__':
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], 'fp:')
+		opts, args = getopt.getopt(sys.argv[1:], 'fp:c:')
 	except getopt.GetoptError:
-		print 'usage: callback.py [-f] [-p pidfile]'
+		print 'usage: callback.py [-f] [-p pidfile] [-c config]'
 		sys.exit(1)
 
 	syslog.startLogging('callback')
 
 	pidfile = None
+	config = '/etc/sip-callback/config.ini'
 	foreground = False
 
 	for o, a in opts:
 		if o == '-p':
 			pidfile = a
+			continue
+		if o == '-c':
+			config = a
 			continue
 		if o == '-f':
 			foreground = True
@@ -172,7 +176,7 @@ if __name__ == '__main__':
 				os._exit(0)
 			os.chdir('/')
 	# Get config file
-	configuration = ConfigFile('/etc/callback/config.ini')
+	configuration = ConfigFile(config)
 
 	global_config['proxy_address'] = configuration.get_setting('General', 'paddr', default='127.0.0.1', type=str)
 	global_config['proxy_port'] = configuration.get_setting('General', 'pport', default=5060, type=int)
