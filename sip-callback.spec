@@ -32,10 +32,7 @@ A simple SIP web-callback application
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -D -p -m 0644 config.ini $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/config.ini
-install -D -p -m 0755 %{name}.py  $RPM_BUILD_ROOT%{_sbindir}/%{name}
-install -D -p -m 0755 %{name}.init  $RPM_BUILD_ROOT%{_initrddir}/%{name}
-install -d $RPM_BUILD_ROOT%{_localstatedir}/run/%{name}
+make install DESTDIR=$RPM_BUILD_ROOT
 
 
 %pre
