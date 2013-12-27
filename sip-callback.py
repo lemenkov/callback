@@ -143,13 +143,13 @@ def recvRequest(req):
 	pass
 
 if __name__ == '__main__':
+	syslog.startLogging('callback')
+
 	try:
 		opts, args = getopt.getopt(sys.argv[1:], 'fp:c:')
 	except getopt.GetoptError:
 		print 'usage: callback.py [-f] [-p pidfile] [-c config]'
 		sys.exit(1)
-
-	syslog.startLogging('callback')
 
 	pidfile = None
 	config = '/etc/sip-callback/config.ini'
